@@ -1,28 +1,33 @@
+"""One-Liner Laughs entry: write a single funny line to the output file.
+
+The joke is a one-liner of at most 200 characters. The grader runs this
+program in a sandbox; it writes the line to ``entry.txt`` under the output
+directory (``MAKEFUN_OUTPUT_DIR`` or ``/output``).
+"""
+
 import os
 
-LINE = "I asked my GPS for the scenic route; it took me past my ex's house twice and called it closure."
-
-MIN_CHARS = 1
-MAX_CHARS = 200
-OUTPUT_NAME = "entry.txt"
+JOKE = "I asked my GPS for the scenic route; it took me past my ex's house twice and called it closure."
+LIMIT = 200
 
 
-def validate_line(line):
-    if not (MIN_CHARS <= len(line) <= MAX_CHARS):
-        raise ValueError("line must be %d-%d chars, got %d" % (MIN_CHARS, MAX_CHARS, len(line)))
+def main():
+    line = JOKE
+    if not line or line != line.strip():
+        raise SystemExit("joke must not be blank or padded with whitespace")
+    if len(line) > LIMIT:
+        raise SystemExit("joke is %d characters, over the %d limit" % (len(line), LIMIT))
     if "\n" in line or "\r" in line:
-        raise ValueError("line must be a single line")
-    if not line.strip():
-        raise ValueError("line must not be only whitespace")
-
-
-def write_entry(line, out_dir):
-    validate_line(line)
+        raise SystemExit("joke must be a single line")
+    out_dir = os.environ.get("MAKEFUN_OUTPUT_DIR", "/output")
     os.makedirs(out_dir, exist_ok=True)
-    with open(os.path.join(out_dir, OUTPUT_NAME), "w", encoding="utf-8") as f:
-        f.write(line)
+    target = os.path.join(out_dir, "entry.txt")
+    with open(target, "w", encoding="utf-8") as handle:
+        handle.write(line)
+    with open(target, "r", encoding="utf-8") as handle:
+        if handle.read() != line:
+            raise SystemExit("written entry does not match the joke")
 
 
 if __name__ == "__main__":
-    out_dir = os.environ.get("MAKEFUN_OUTPUT_DIR", "/output")
-    write_entry(LINE, out_dir)
+    main()
